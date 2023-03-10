@@ -13,3 +13,4 @@ plotly.express
 squarify
 numba==0.53
 pyclustertend
+dill
