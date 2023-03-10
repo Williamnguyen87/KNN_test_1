@@ -220,22 +220,22 @@ rfm_agg2.columns = ['RecencyMean','FrequencyMean','MonetaryMean', 'Count']
 rfm_agg2['Percent'] = round((rfm_agg2['Count']/rfm_agg2.Count.sum())*100, 2)
 # Reset the index
 rfm_agg2 = rfm_agg2.reset_index()
-# silhouette_score(PCA_components.iloc[:,:1], kmean1.labels_, metric='euclidean')
+silhouette_score(PCA_components.iloc[:,:1], kmean1.labels_, metric='euclidean')
 
 #Create tree plot
-# fig_2 = plt.gcf()
-# ax2 = fig_2.add_subplot()
-# fig_2.set_size_inches(8, 10)
-# colors_dict_2 = {'GOLD':'gold','HIDDEN GEM':'cyan','Promising':'red'}
-# squarify.plot(sizes=rfm_agg2['Count'],
-#             text_kwargs={'fontsize':12,'weight':'bold', 'fontname':"sans serif"},
-#             color=colors_dict_2.values(),
-#             label=['{} \n{:.0f} days \n{:.0f} orders \n{:.0f} $ \n{:.0f} customers ({}%)'.format(*rfm_agg2.iloc[i])
-#                     for i in range(0, len(rfm_agg2))], alpha=0.5 )
-# plt.title("Customers Segments",fontsize=26,fontweight="bold")
-# plt.axis('off')
-# plt.savefig('Kmean_Segments.png')
-# plt.show()
+fig_2 = plt.gcf()
+ax2 = fig_2.add_subplot()
+fig_2.set_size_inches(8, 10)
+colors_dict_2 = {'GOLD':'gold','HIDDEN GEM':'cyan','Promising':'red'}
+squarify.plot(sizes=rfm_agg2['Count'],
+            text_kwargs={'fontsize':12,'weight':'bold', 'fontname':"sans serif"},
+            color=colors_dict_2.values(),
+             abel=['{} \n{:.0f} days \n{:.0f} orders \n{:.0f} $ \n{:.0f} customers ({}%)'.format(*rfm_agg2.iloc[i])
+                    for i in range(0, len(rfm_agg2))], alpha=0.5 )
+plt.title("Customers Segments",fontsize=26,fontweight="bold")
+plt.axis('off')
+plt.savefig('Kmean_Segments.png')
+plt.show()
 
 #--------------
 #LOAD MODEL ĐÃ BUILD 
