@@ -519,6 +519,7 @@ elif choice=='DỮ LIỆU MỚI VÀ KẾT QUẢ PHÂN LOẠI':
     test_accuracy = accuracy_score(y_test,model.predict(X_test))*100
     st.code(f'Train accuracy: {round(train_accuracy,2)}% \nTest accuracy: {round(test_accuracy,2)}%')
     st.markdown("**Model KNN hoạt động tối ưu hơn trên 1 số tập dữ liệu**")
+    
     if type=="Input":        
         Recency = st.number_input(label="Input Recency of Customer:")
         Frequency = st.number_input(label="Input Frequency of Customer:")
