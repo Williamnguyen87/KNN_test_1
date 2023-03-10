@@ -21,7 +21,7 @@ from sklearn.cluster import KMeans
 from scipy import stats
 from pyclustertend import hopkins, ivat
 from sklearn.decomposition import PCA
-import pickle5 as pickle
+import pickle
 import io
 from yellowbrick.classifier import ConfusionMatrix, ClassificationReport, ROCAUC, roc_auc
 
