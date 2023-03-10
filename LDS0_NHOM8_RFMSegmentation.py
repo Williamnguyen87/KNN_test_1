@@ -426,7 +426,8 @@ if choice == 'GIỚI THIỆU':
 
      ''')
     st.subheader("Customer Segmentation là gì?")
-    st.image("Customer-Segmentation.jpg")
+    st.image("RFM_Model_1.png")
+    st.image("RFM_Model_2.png")
     st.write('''
         Phân khúc/nhóm/cụm khách hàng (market segmentation – còn được gọi là phân khúc thị trường) là quá trình
     nhóm các khách hàng lại với nhau dựa trên các đặc điểm chung. Nó phân chia và nhóm khách hàng thành các nhóm 
