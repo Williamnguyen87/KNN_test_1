@@ -70,6 +70,7 @@ df_recency.columns = ['Customer_id', 'LastPurchaseDate']
 recent_date = df_recency['LastPurchaseDate'].max()
 df_recency['Recency'] = df_recency['LastPurchaseDate'].apply(
     lambda x: (recent_date - x).days)
+
 ##Chuẩn bị df frequency_df
 frequency_df = df.groupby(by=['Customer_id'], as_index=False)['Dates'].count()
 frequency_df.columns = ['Customer_id', 'Frequency']
@@ -223,19 +224,19 @@ rfm_agg2 = rfm_agg2.reset_index()
 silhouette_score(PCA_components.iloc[:,:1], kmean1.labels_, metric='euclidean')
 
 #Create tree plot
-fig_2 = plt.gcf()
-ax2 = fig_2.add_subplot()
-fig_2.set_size_inches(8, 10)
-colors_dict_2 = {'GOLD':'gold','HIDDEN GEM':'cyan','Promising':'red'}
-squarify.plot(sizes=rfm_agg2['Count'],
-            text_kwargs={'fontsize':12,'weight':'bold', 'fontname':"sans serif"},
-            color=colors_dict_2.values(),
-             abel=['{} \n{:.0f} days \n{:.0f} orders \n{:.0f} $ \n{:.0f} customers ({}%)'.format(*rfm_agg2.iloc[i])
-                    for i in range(0, len(rfm_agg2))], alpha=0.5 )
-plt.title("Customers Segments",fontsize=26,fontweight="bold")
-plt.axis('off')
-plt.savefig('Kmean_Segments.png')
-plt.show()
+#fig_2 = plt.gcf()
+#ax2 = fig_2.add_subplot()
+#fig_2.set_size_inches(8, 10)
+#colors_dict_2 = {'GOLD':'gold','HIDDEN GEM':'cyan','Promising':'red'}
+#squarify.plot(sizes=rfm_agg2['Count'],
+#            text_kwargs={'fontsize':12,'weight':'bold', 'fontname':"sans serif"},
+#            color=colors_dict_2.values(),
+#            label=['{} \n{:.0f} days \n{:.0f} orders \n{:.0f} $ \n{:.0f} customers ({}%)'.format(*rfm_agg2.iloc[i])
+#                    for i in range(0, len(rfm_agg2))], alpha=0.5 )
+#plt.title("Customers Segments",fontsize=26,fontweight="bold")
+#plt.axis('off')
+#plt.savefig('Kmean_Segments.png')
+#plt.show()
 
 #--------------
 #LOAD MODEL ĐÃ BUILD 
