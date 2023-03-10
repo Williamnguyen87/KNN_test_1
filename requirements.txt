@@ -1,5 +1,5 @@
 streamlit
-numpy
+numpy==1.19.5
 pandas
 matplotlib
 seaborn
@@ -11,3 +11,4 @@ streamlit_yellowbrick==0.0.3
 yellowbrick
 plotly.express
 squarify
+numba==0.53
