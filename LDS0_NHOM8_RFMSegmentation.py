@@ -471,6 +471,7 @@ if choice == 'GIỚI THIỆU':
     ''')
 elif choice =='PHÂN TÍCH RFM VÀ PHÂN CỤM':
     run_all(rfm_df)
+    
 elif choice=='DỮ LIỆU MỚI VÀ KẾT QUẢ PHÂN LOẠI':
     st.subheader("Dự đoán khách hàng mới bằng KMeans")
     current_labels = ['GOLD','HIDDEN GEM','STAR']
@@ -488,7 +489,7 @@ elif choice=='DỮ LIỆU MỚI VÀ KẾT QUẢ PHÂN LOẠI':
     for i in current_labels:
         s += "- " + i + "\n"
     st.markdown(s)
-    uploaded_file = st.file_uploader("Choose a file", type=['csv'])
+    uploaded_file = st.file_uploader("Choose a file", type=['csv, txt'])
     if uploaded_file is not None:
         data = load_data(uploaded_file)
     st.write('Dữ liệu training cho model KNN:',(data[:50]))
@@ -510,9 +511,6 @@ elif choice=='DỮ LIỆU MỚI VÀ KẾT QUẢ PHÂN LOẠI':
         scaler_wrapper = SklearnTransformerWrapper(StandardScaler()) 
         X_train = scaler_wrapper.fit_transform(X_train, ['Recency', 'Frequency', 'Monetary'])
         X_test = scaler_wrapper.transform(X_test)
-## Build Model
-    ### GridSearch to find best Parameter
-    st.write("### Find the best ParaMeter with GridSearchCV")
     # Fit the best model to the training data, fit to train data
     model = KNN_best_model(X_train, y_train)    
     ### Accuracy
@@ -520,33 +518,27 @@ elif choice=='DỮ LIỆU MỚI VÀ KẾT QUẢ PHÂN LOẠI':
     train_accuracy = accuracy_score(y_train,model.predict(X_train))*100
     test_accuracy = accuracy_score(y_test,model.predict(X_test))*100
     st.code(f'Train accuracy: {round(train_accuracy,2)}% \nTest accuracy: {round(test_accuracy,2)}%')
-    st.markdown("**Model KNN hoạt động phù hợp trên tập dữ liệu**")
+    st.markdown("**Model KNN hoạt động tối ưu hơn trên 1 số tập dữ liệu**")
+    if type=="Input":        
+        Recency = st.number_input(label="Input Recency of Customer:")
+        Frequency = st.number_input(label="Input Frequency of Customer:")
+        Monetary = st.number_input(label="Input Monetary of Customer:")
+        if Recency*Frequency*Monetary != 0:
+            data_input = pd.DataFrame({'Recency': [Recency],
+                                       'Frequency': [Frequency],
+                                       'Monetary': [Monetary]})
+            flag = True
     
-    st.write("## Result Report")    
-    chart_type = st.radio(
-    "Result Report",
-    ('Classification Report',
-    'Confusion Matrix',
-    'ROC CURVE',))
-    if chart_type == 'Confusion Matrix':        
-        st.write("### Confusion Matrix")
-        ### Confusion Matrix
-        cm = ConfusionMatrix(model, classes=y.unique())
-        # Fit fits the passed model. This is unnecessary if you pass the visualizer a pre-fitted model
-        cm.fit(X_train, y_train)
-        cm.score(X_test, y_test)
-        st_yellowbrick(cm)
-    ### Classification Report
-    if chart_type == 'Classification Report':        
-        st.write("### Classification Report")
-        clr = ClassificationReport(model, classes=y.unique(), support=True)
-        clr.fit(X_train, y_train)        
-        clr.score(X_test, y_test)        
-        st_yellowbrick(clr)   
-    ### ROC AUC 
-    if chart_type == 'ROC CURVE':
-        st.write('### ROC CURVE')
-        rocauc = ROCAUC(model, classes=y.unique()) 
-        rocauc.fit(X_train, y_train)        
-        rocauc.score(X_test, y_test,)        
-        st_yellowbrick(rocauc)  
+    if flag:
+        st.markdown("**Input:**")
+        st.dataframe(data_input)
+        x_new = scaling_model.transform(data_input[['Recency','Frequency','Monetary']])
+        data_input['predict'] = model.predict(x_new)
+        data_input['predict'] = data_input['predict'].map(inverse_map)
+        st.markdown("**Result:**")
+        st.dataframe(data_input)
+         
+    
+    
+    
+
