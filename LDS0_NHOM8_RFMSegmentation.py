@@ -311,7 +311,7 @@ m_groups = pd.qcut(rfm_df['Monetary'].rank(method='first'), q=4, labels=m_labels
     st.write('Mean & tỷ trọng của các segments sau khi làm Manual Segmentation')
     st.dataframe(rfm_agg)
     st.write('Treemap')
-    st.image("RFM_Segments_manual.PNG", caption='Manual Segmentation')
+    st.image("RFM_Segments_manual.png", caption='Manual Segmentation')
     st.write('Scatter Plot (RFM)')
     pig_dot = px.scatter(rfm_agg, x="RecencyMean", y="MonetaryMean", size="FrequencyMean", color="RFM_level",
            hover_name="RFM_level", size_max=50)
@@ -402,9 +402,9 @@ m_groups = pd.qcut(rfm_df['Monetary'].rank(method='first'), q=4, labels=m_labels
     st.image('Kmean_Segments.png', caption = 'Unsupervised Segments')
 
 
-#--------------
+#---------------------------------------------
 # GUI
-#--------------
+#---------------------------------------------
 st.set_page_config(
     page_title="Capstone Project", page_icon="📈", initial_sidebar_state="expanded"
 )
