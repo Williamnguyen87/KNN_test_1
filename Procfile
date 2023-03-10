@@ -1,0 +1,1 @@
+web: sh setup.sh && streamlit run LDS0_NHOM8_RFMSegmentation.py
