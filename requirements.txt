@@ -4,7 +4,6 @@ pandas
 matplotlib
 seaborn
 scikit-learn
-pickle
 squarify==0.4.3
 plotly
 feature_engine
