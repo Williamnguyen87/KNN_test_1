@@ -3,7 +3,6 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import streamlit as st
-from pyhelpers.store import load_pickle
 from streamlit_yellowbrick import st_yellowbrick
 import warnings
 warnings.filterwarnings('ignore')
