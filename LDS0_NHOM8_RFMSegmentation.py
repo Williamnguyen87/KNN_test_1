@@ -3,6 +3,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import streamlit as st
+from pyhelpers.store import load_pickle
 from streamlit_yellowbrick import st_yellowbrick
 import warnings
 warnings.filterwarnings('ignore')
@@ -15,6 +16,7 @@ from feature_engine.wrappers import SklearnTransformerWrapper
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import KFold
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import RobustScaler
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import silhouette_score
 from sklearn.cluster import KMeans
@@ -28,33 +30,6 @@ from yellowbrick.classifier import ConfusionMatrix, ClassificationReport, ROCAUC
 #--------------
 #Function
 #--------------
-@st.cache_data  # 
-def load_data(file_name):
-    df = pd.read_csv(file_name)
-    return df[['Customer_id', 'Recency', 'Frequency', 'Monetary', 'K_Cluster']]
-# Function get info of dataframe for streamlit
-@st.cache_data
-def info_dataframe(dataframe):
-    buffer = io.StringIO()
-    dataframe.info(buf = buffer)
-    s = buffer.getvalue()
-    return s
-
-@st.cache_resource
-def KNN_best_model(X_train, y_train):
-        with st.echo():
-            kf = KFold(n_splits=5)
-            # Create a list of parameters of Logistic Regression for the GridSearchCV
-            k_range = [6, 10 ,15, 20, 25]
-            param_grid = dict(n_neighbors=k_range)
-            # Create a list of models to test
-            clf_grid = GridSearchCV(KNeighborsClassifier(), param_grid, cv=kf)
-            search_clf = clf_grid.fit(X_train, y_train)
-            best_clf = search_clf.best_estimator_
-            # Build model with best Parameter
-            best_model = KNeighborsClassifier(n_neighbors=clf_grid.best_params_['n_neighbors'])
-            model = best_model.fit(X_train, y_train)
-        return model
 
 #--------------
 #LOAD VÀ CHUẨN BỊ DỮ LIỆU
@@ -375,31 +350,7 @@ m_groups = pd.qcut(rfm_df['Monetary'].rank(method='first'), q=4, labels=m_labels
     st.plotly_chart(f)
     st.write('=>> Theo K-Means Elbow Method ta chọn K = 3')
     st.write('')
-    st.write('Trung bình giá trị RFM và số lượng khách hàng ở mỗi nhóm được phân cụm')
-    st.dataframe(km_pca)
-    st.code('silhouette score' + ' ' + str(silhouette_score(PCA_components.iloc[:,:1], kmean1.labels_, metric='euclidean')))
-    st.write('''
-    Nhận xét:
-    silhouette score cho giá trị gần bằng 1, có thể thấy kết quả khá tốt.
-    ''')
-    st.subheader('Trực quan hóa kết quả được phân cụm')
-    fig = px.scatter_3d(rfm_rfm_k, x="Recency", y="Monetary", z="Frequency",
-                    color = 'K_Cluster', width=800, height=400)
-    st.plotly_chart(fig)
-    st.write('''
-    Dựa vào kết quả ta có thể đặt tên cho các cụm khách hàng như sau:
-    
-    0. GOLD
-    
-    1. HIDDEN GEM
-    
-    2. STAR
-    ''')
-    st.write('')
-    st.write('')
-    st.write('tính giá trị trung bình của các RFM_Level và tỷ trọng của các Segments')
-    st.dataframe(rfm_agg2)
-    st.image('Kmean_Segments.png', caption = 'Unsupervised Segments')
+
 
 
 #---------------------------------------------
@@ -415,7 +366,7 @@ st.write("## Capstone Project - Đồ án tốt nghiệp Data Science")
 st.sidebar.header('Capstone Project')
 st.sidebar.subheader("Customer Segmetation sử dụng RFM")
 
-menu=['GIỚI THIỆU','PHÂN TÍCH RFM VÀ PHÂN CỤM','DỮ LIỆU MỚI VÀ KẾT QUẢ PHÂN LOẠI']
+menu=['GIỚI THIỆU','TIỀN XỬ LÝ DỮ LIỆU','KẾT QUẢ PHÂN CỤM']
 choice=st.sidebar.selectbox('Menu',menu)
 st.sidebar.markdown(
         "<hr />",
@@ -424,7 +375,6 @@ st.sidebar.markdown(
 if choice == 'GIỚI THIỆU':
     st.markdown("<h1 style='text-align: center; color: white;'>Customer Segmentation</h1>", unsafe_allow_html=True) 
     st.write('''
-
      ''')
     st.subheader("Customer Segmentation là gì?")
     st.image("RFM_Model_1.png")
@@ -451,7 +401,6 @@ if choice == 'GIỚI THIỆU':
     ''')
     st.write('''
     RFM nghiên cứu hành vi của khách hàng và phân nhóm dựa trên ba yếu tố đo lường:
-
     - Recency (R): đo lường số ngày kể từ lần mua hàng cuối cùng (lần truy cập gần đây nhất) đến ngày giả định chung
     để tính toán (ví dụ: ngày hiện tại, hoặc ngày max trong danh sách giao dịch).
     - Frequency (F): đo lường số lượng giao dịch (tổng số lần mua hàng) được thực hiện trong thời gian nghiên cứu.
@@ -461,85 +410,38 @@ if choice == 'GIỚI THIỆU':
     st.subheader('Business Objective/Problem')
     st.write('''
     Công ty X chủ yếu phát hành và bán sản phẩm là CD tới khách hàng.
-
     Công ty X mong muốn có thể bán được nhiều sản phẩm hơn cũng như giới
     thiệu sản phẩm đến đúng đối tượng, chăm sóc và làm hài lòng khách hàng.
-
     Data set CDNOW_master.txt chứa toàn bộ lịch sử mua hàng từ quý đầu tiên 
     năm 1997 cho đến hết quý thứ hai năm 1998 (cuối tháng 06/1998) 
     của 23.570 khách hàng đã thực hiện.
     ''')
-elif choice =='PHÂN TÍCH RFM VÀ PHÂN CỤM':
+elif choice =='TIỀN XỬ LÝ DỮ LIỆU':
     run_all(rfm_df)
     
-elif choice=='DỮ LIỆU MỚI VÀ KẾT QUẢ PHÂN LOẠI':
-    st.subheader("Dự đoán khách hàng mới bằng KMeans")
-    current_labels = ['GOLD','HIDDEN GEM','STAR']
-    # Upload file
-    st.write("""## Read data""")
-    data = load_data('result_KMeans.csv')
-    data['Monetary'] = data['Monetary'].replace(np.nan, 0)
-    data['Monetary'] = data['Monetary'].replace([np.inf, -np.inf], 0, inplace=True)
-    st.write("### Training data")
-    st.dataframe(rfm_rfm_k.head(5))
-    st.write(""" Tải lên dữ liệu training phân cụm khách hàng theo định dạng:\n
-    ['customer_id', 'Recency', 'Frequency', 'Monetary', 'K_Cluster']""")
-    st.write('Với các nhóm khách hàng như sau:')
-    s= ''
-    for i in current_labels:
-        s += "- " + i + "\n"
-    st.markdown(s)
-    uploaded_file = st.file_uploader("Choose a file", type=['csv, txt'])
-    if uploaded_file is not None:
-        data = load_data(uploaded_file)
-    st.write('Dữ liệu training cho model KNN:',(data[:50]))
-    st.write('Thông tin của dữ liệu')
-    st.text(info_dataframe(data))
-    ## Convert category into numeric for target column
-    desired_labels = [0,1,2]
-    map_dict = dict(zip(current_labels, desired_labels))
-    st.write('Chuyển đổi cột dữ liệu phân loại sang kiểu số', map_dict)
-    data['target'] = data['K_Cluster'].map(map_dict)
-    # Code
-    # Build Model with KNN
-    st.write("## Build Model with KNN")
-    X = data.drop(['Customer_id', 'K_Cluster', 'target'], axis = 1)
-    y = data.target
-    X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.2, random_state=42)
-    st.write("### Chuẩn hoá dữ liệu bằng Standard Scaler")
-    with st.echo():
-        scaler_wrapper = SklearnTransformerWrapper(StandardScaler()) 
-        X_train = scaler_wrapper.fit_transform(X_train, ['Recency', 'Frequency', 'Monetary'])
-        X_test = scaler_wrapper.transform(X_test)
-    # Fit the best model to the training data, fit to train data
-    model = KNN_best_model(X_train, y_train)    
-    ### Accuracy
-    st.write("### Accuracy")
-    train_accuracy = accuracy_score(y_train,model.predict(X_train))*100
-    test_accuracy = accuracy_score(y_test,model.predict(X_test))*100
-    st.code(f'Train accuracy: {round(train_accuracy,2)}% \nTest accuracy: {round(test_accuracy,2)}%')
-    st.markdown("**Model KNN hoạt động tối ưu hơn trên 1 số tập dữ liệu**")
+elif choice=='KẾT QUẢ PHÂN CỤM':
+    st.write('Trung bình giá trị RFM và số lượng khách hàng ở mỗi nhóm được phân cụm')
+    st.dataframe(km_pca)
+    st.code('silhouette score' + ' ' + str(silhouette_score(PCA_components.iloc[:,:1], kmean1.labels_, metric='euclidean')))
+    st.write('''
+    Nhận xét:
+    silhouette score cho giá trị gần bằng 1, có thể thấy kết quả khá tốt.
+    ''')
+    st.subheader('Trực quan hóa kết quả được phân cụm')
+    fig = px.scatter_3d(rfm_rfm_k, x="Recency", y="Monetary", z="Frequency",
+                    color = 'K_Cluster', width=800, height=400)
+    st.plotly_chart(fig)
+    st.write('''
+    Dựa vào kết quả ta có thể đặt tên cho các cụm khách hàng như sau:
     
-    if type=="Input":        
-        Recency = st.number_input(label="Input Recency of Customer:")
-        Frequency = st.number_input(label="Input Frequency of Customer:")
-        Monetary = st.number_input(label="Input Monetary of Customer:")
-        if Recency*Frequency*Monetary != 0:
-            data_input = pd.DataFrame({'Recency': [Recency],
-                                       'Frequency': [Frequency],
-                                       'Monetary': [Monetary]})
-            flag = True
+    0. GOLD
     
-    if flag:
-        st.markdown("**Input:**")
-        st.dataframe(data_input)
-        x_new = scaling_model.transform(data_input[['Recency','Frequency','Monetary']])
-        data_input['predict'] = model.predict(x_new)
-        data_input['predict'] = data_input['predict'].map(inverse_map)
-        st.markdown("**Result:**")
-        st.dataframe(data_input)
-         
+    1. HIDDEN GEM
     
-    
-    
-
+    2. STAR
+    ''')
+    st.write('')
+    st.write('')
+    st.write('tính giá trị trung bình của các RFM_Level và tỷ trọng của các Segments')
+    st.dataframe(rfm_agg2)
+    st.image('Kmean_Segments.png', caption = 'Unsupervised Segments')
